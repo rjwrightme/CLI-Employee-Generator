@@ -100,10 +100,54 @@ inquirer
             default: "1234",
             validate: numberValidator,
         },
+        {
+            type: "list",
+            name: "teamRole",
+            message: "Which type of team member would you like to add?",
+            choices: [
+              "Engineer", "Intern", "I'm done"],
+        }
     ])
-    .then( answers => console.log(answers) )
+    .then( answers => {
+        if (answers.teamRole === "I'm done") {
+            main(answers);
+        } else {
+            main(answers, answers.teamRole);
+        }
+     } )
     .catch( error => console.error(error) );
 
+// Inquirer loop
+const teamInput = async (inputs = [], role) => {
+    const prompts = [
+      {
+        type: "input",
+        name: "name",
+        message: "What is your engineer's name?",
+        default: "Engineer Guy"
+      },
+      {
+        type: "list",
+        name: "teamRole",
+        message: "Which type of team member would you like to add?",
+        choices: [
+          "Engineer", "Intern", "I'm done"],
+      }
+    ];
+  
+    const { ...answers } = await inquirer.prompt(prompts);
+    const newInputs = [...inputs, answers];
+    return (answers.teamRole === "I'm done") ? newInputs : teamInput(newInputs, answers.teamRole);
+  };
+  
+  const main = async (manager, teamMembers = false) => {
+    if (teamMembers) {
+        const inputs = await teamInput();
+        console.log([manager, ...inputs]);
+    } else {
+        console.log(manager);
+    }
+  };
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will

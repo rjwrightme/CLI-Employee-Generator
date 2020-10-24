@@ -46,18 +46,20 @@ Team file written. You can view it here: XXXXXXXXX
 
 // Validation functions
 let usedIDs = [];
+let suggestedID = 1234;
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 const idValidator = async (input) => {
     if (/[^0-9]/.test(input)) {
         return 'Please enter a number.'
     } else {
-        for (const id in usedIDs) {
-            if (id === input) {
+        for (let i = 0; i < usedIDs.length; i++) {
+            if ( input === usedIDs[i] ) {
                 return 'This ID is already taken. Please use a unique ID.';
             }
         }
         usedIDs.push(input);
+        suggestedID++;
         return true;
     }
 };
@@ -75,60 +77,114 @@ inquirer
     .prompt([
         {
             type: "input",
-            name: "managerName",
+            name: "name",
             message: "What is your manager's name?",
             default: "Mr Manager",
         },
         {
             type: "input",
-            name: "managerID",
+            name: "id",
             message: "What is your manager's id?",
-            default: "1234",
-            validate: numberValidator,
+            default: suggestedID,
+            validate: idValidator,
         },
         {
             type: "input",
-            name: "managerEmail",
+            name: "email",
             message: "What is your manager's email?",
             default: "example@mail.com",
             validate: emailValidator,
         },
         {
             type: "input",
-            name: "managerOfficeNumber",
+            name: "officeNumber",
             message: "What is your manager's office number?",
             default: "1234",
             validate: numberValidator,
         },
         {
             type: "list",
-            name: "teamRole",
+            name: "continue",
             message: "Which type of team member would you like to add?",
             choices: [
               "Engineer", "Intern", "I'm done"],
         }
     ])
     .then( answers => {
-        if (answers.teamRole === "I'm done") {
-            main(answers);
+        if (answers.continue === "I'm done") {
+            main({...answers, role : "Manager"});
         } else {
-            main(answers, answers.teamRole);
+            main({...answers, role : "Manager"}, answers.continue);
         }
      } )
     .catch( error => console.error(error) );
 
 // Inquirer loop
-const teamInput = async (inputs = [], role) => {
+const teamInput = async (role, inputs = []) => {
     const prompts = [
       {
         type: "input",
         name: "name",
-        message: "What is your engineer's name?",
-        default: "Engineer Guy"
+        message: "What is your enigneer's name?",
+        default: "Engineer Guy",
+        when: () => role === "Engineer"
+      },
+      {
+        type: "input",
+        name: "id",
+        message: "What is your engineer's id?",
+        default: suggestedID,
+        validate: idValidator,
+        when: () => role === "Engineer"
+      },
+      {
+        type: "input",
+        name: "email",
+        message: "What is your engineer's email?",
+        default: "engineer@mail.com",
+        validate: emailValidator,
+        when: () => role === "Engineer"
+      },
+      {
+        type: "input",
+        name: "github",
+        message: "What is your engineer's GitHub user name?",
+        default: "github-user",
+        when: () => role === "Engineer"
+      },
+      {
+        type: "input",
+        name: "name",
+        message: "What is your intern's name?",
+        default: "Intern Dude",
+        when: () => role === "Intern"
+      },
+      {
+        type: "input",
+        name: "id",
+        message: "What is your intern's id?",
+        default: suggestedID,
+        validate: idValidator,
+        when: () => role === "Intern"
+      },
+      {
+        type: "input",
+        name: "email",
+        message: "What is your intern's email?",
+        default: "intern@mail.com",
+        validate: emailValidator,
+        when: () => role === "Intern"
+      },
+      {
+        type: "input",
+        name: "school",
+        message: "What is your intern's school?",
+        default: "Dark Net Academy",
+        when: () => role === "Intern"
       },
       {
         type: "list",
-        name: "teamRole",
+        name: "continue",
         message: "Which type of team member would you like to add?",
         choices: [
           "Engineer", "Intern", "I'm done"],
@@ -136,13 +192,13 @@ const teamInput = async (inputs = [], role) => {
     ];
   
     const { ...answers } = await inquirer.prompt(prompts);
-    const newInputs = [...inputs, answers];
-    return (answers.teamRole === "I'm done") ? newInputs : teamInput(newInputs, answers.teamRole);
+    const newInputs = [...inputs, {...answers, role: role}];
+    return (answers.continue === "I'm done") ? newInputs : teamInput(answers.continue, newInputs);
   };
   
   const main = async (manager, teamMembers = false) => {
     if (teamMembers) {
-        const inputs = await teamInput();
+        const inputs = await teamInput(teamMembers);
         console.log([manager, ...inputs]);
     } else {
         console.log(manager);

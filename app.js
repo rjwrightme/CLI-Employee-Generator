@@ -175,12 +175,13 @@ const teamInput = async (role, inputs = []) => {
   };
   
   const main = async (manager, teamMembers = false) => {
-    if (teamMembers) {
-        const inputs = await teamInput(teamMembers);
-        console.log(render([manager, ...inputs]));
-    } else {
-        console.log(manager);
-    }
+    const inputs = await teamInput(teamMembers);
+    fs.writeFile("./output/index.html", render((teamMembers) ? [manager, ...inputs] : manager), function(err) {
+        if (err) {
+            return console.log(err);
+        }
+        console.log("Saved html file to /output/index.html");
+        });
   };
 
 

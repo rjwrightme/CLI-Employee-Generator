@@ -13,36 +13,7 @@ const render = require("./lib/htmlRenderer");
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
-/*
 
-
-Please build your team
-What is your manager's name?
-What is your manager's id? >>Please enter a positive number greater than zero.
-What is your manager's email? >>Please enter a valid email address
-What is your manager's office number?
-
-Which type of team member would you like to add?
-> Engineer
-> Intern
-> I'm done.
-
-What is your intern's name?
-What is your intern's id? >>This ID is already taken. Please use a unique ID.
-What is your intern's email address?
-What is your intern's school?
->> Intern Added. (Jump back to new team member menu above)
-
-What is your engineer's name?
-What is your engineer's id?
-What is your engineer's email address?
-What is your engineer's GitHub user name?
->> Engineer Added. (Jump back to new team member menu above)
-
-(after form completion)
-Team file written. You can view it here: XXXXXXXXX
-
-*/
 
 // Validation functions
 let usedIDs = [];
@@ -111,10 +82,11 @@ inquirer
         }
     ])
     .then( answers => {
+        let manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber);
         if (answers.continue === "I'm done") {
-            main({...answers, role : "Manager"});
+            main(manager);
         } else {
-            main({...answers, role : "Manager"}, answers.continue);
+            main(manager, answers.continue);
         }
      } )
     .catch( error => console.error(error) );
@@ -192,18 +164,25 @@ const teamInput = async (role, inputs = []) => {
     ];
   
     const { ...answers } = await inquirer.prompt(prompts);
-    const newInputs = [...inputs, {...answers, role: role}];
+    let teamMember;
+    if (role === "Engineer") {
+        teamMember = new Engineer(answers.name, answers.id, answers.email, answers.github);
+    } else {
+        teamMember = new Intern(answers.name, answers.id, answers.email, answers.school);
+    }
+    const newInputs = [...inputs, teamMember];
     return (answers.continue === "I'm done") ? newInputs : teamInput(answers.continue, newInputs);
   };
   
   const main = async (manager, teamMembers = false) => {
     if (teamMembers) {
         const inputs = await teamInput(teamMembers);
-        console.log([manager, ...inputs]);
+        console.log(render([manager, ...inputs]));
     } else {
         console.log(manager);
     }
   };
+
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will

@@ -9,7 +9,6 @@ This is a command line tool buit with node.js that will generate a single HTML p
 - [Installation](#installation)
 - [Usage](#usage)
 - [License](#license)
-- [Screenshots](#screenshots)
 - [Video](#video)
 - [Contact](#contact)
 
@@ -42,9 +41,6 @@ Then answer the questions. An index.html file will be saved in the output folder
 Distributed under the MIT License. See `LICENSE` for more information.
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-## Screenshots
-
-![Screen Shot 01](./screenshots/image01.png)
 
 ## Video
 
